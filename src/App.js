@@ -5,17 +5,17 @@ import Login from "./Login"; // ✅ Import Login Page
 
 function App() {
   const [user, setUser] = useState(null);
-  const [googleToken, setGoogleToken] = useState(null);
+  const [firebaseToken, setFirebaseToken] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setUser(user);
         const token = await user.getIdToken();
-        setGoogleToken(token);
+        setFirebaseToken(token);
       } else {
         setUser(null);
-        setGoogleToken(null);
+        setFirebaseToken(null);
       }
     });
     return () => unsubscribe();
@@ -27,7 +27,7 @@ function App() {
       if (result?.user) {
         setUser(result.user);
         const token = await result.user.getIdToken();
-        setGoogleToken(token);
+        setFirebaseToken(token);
       }
     } catch (error) {
       console.error("❌ Google Sign-In Error:", error);
@@ -36,20 +36,19 @@ function App() {
   };
 
   const handleSave = async (content) => {
-    if (!user || !googleToken) {
+    if (!user || !firebaseToken) {
       alert("You must be logged in to save a letter!");
       return;
     }
     try {
-      const firebaseToken = await user.getIdToken();
-      console.log("🔹 Sending Google OAuth token:", googleToken);
+      console.log("🔹 Sending Firebase Token:", firebaseToken);
       const response = await fetch("https://google-docs-clone-backend-h4q0.onrender.com/save-letter", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${firebaseToken}`,
         },
-        body: JSON.stringify({ letter: content, userToken: googleToken }),
+        body: JSON.stringify({ letter: content }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -80,4 +79,5 @@ function App() {
     </div>
   );
 }
+
 export default App;
