@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import TextEditor from "./components/TextEditor";
-import { auth, signInWithGoogle } from "./firebase"; // ✅ Import Corrected Firebase Auth
+import { auth, signInWithGoogle } from "./firebase"; // ✅ Import Firebase Auth
 import Login from "./Login"; // ✅ Import Login Page
 
 function App() {
-  const [savedLetter, setSavedLetter] = useState("");
   const [user, setUser] = useState(null);
   const [googleToken, setGoogleToken] = useState(null);
 
@@ -13,21 +12,31 @@ function App() {
       if (user) {
         setUser(user);
 
-        // ✅ Ensure Google OAuth Token is Retrieved
-        const signInResult = await signInWithGoogle();
-        if (signInResult && signInResult.googleToken) {
-          setGoogleToken(signInResult.googleToken);
-        } else {
-          console.error("❌ Failed to get Google OAuth token");
-          alert("❌ Google authentication failed! Try again.");
-        }
+        // ✅ Get Google OAuth Token from User
+        const token = await user.getIdToken();
+        setGoogleToken(token);
       } else {
         setUser(null);
         setGoogleToken(null);
       }
     });
+
     return () => unsubscribe(); // Cleanup on unmount
   }, []);
+
+  const handleLogin = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result.user) {
+        setUser(result.user);
+        const token = await result.user.getIdToken();
+        setGoogleToken(token);
+      }
+    } catch (error) {
+      console.error("❌ Google Sign-In Error:", error);
+      alert("❌ Google authentication failed! Please try again.");
+    }
+  };
 
   const handleSave = async (content) => {
     if (!user || !googleToken) {
@@ -36,7 +45,7 @@ function App() {
     }
 
     try {
-      const firebaseToken = await user.getIdToken(); // Firebase Auth Token
+      const firebaseToken = await user.getIdToken();
 
       console.log("🔹 Sending Google OAuth token:", googleToken); // 🔥 Debugging log
 
@@ -61,21 +70,19 @@ function App() {
     }
   };
 
-  // 🔹 Show Login Page if User is NOT Signed In
-  if (!user) {
-    return <Login />;
-  }
-
   return (
     <div>
       <h1>Google Docs Clone</h1>
-      <button onClick={() => auth.signOut()}>Logout</button> {/* ✅ Logout Button */}
-      <TextEditor onSave={handleSave} />
-      {savedLetter && (
-        <div>
-          <h2>Saved Letter</h2>
-          <div dangerouslySetInnerHTML={{ __html: savedLetter }} />
-        </div>
+      {user ? (
+        <>
+          <button onClick={() => auth.signOut()}>Logout</button> {/* ✅ Logout Button */}
+          <TextEditor onSave={handleSave} />
+        </>
+      ) : (
+        <>
+          <button onClick={handleLogin}>Sign in with Google</button>
+          <Login />
+        </>
       )}
     </div>
   );
