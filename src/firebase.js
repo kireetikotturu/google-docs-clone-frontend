@@ -1,10 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  signOut 
-} from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCm1YB7wUZL15nB7PyrLjpqpJVVeN21-40",
@@ -19,21 +14,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// ✅ Configure Google OAuth Provider (Prevents Popup Issues)
+// ✅ Configure Google OAuth Provider
 const provider = new GoogleAuthProvider();
 provider.addScope("https://www.googleapis.com/auth/drive.file");
 
-// ✅ Function to Sign In with Google & Handle Errors
+// ✅ Function to Sign In with Google
 const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential) throw new Error("No credentials returned from Google");
 
-    const googleAccessToken = credential.accessToken; // ✅ Correct Google OAuth Token
-    console.log("✅ Google Access Token:", googleAccessToken);
-    
-    return { user: result.user, googleToken: googleAccessToken };
+    return { user: result.user, googleToken: credential.accessToken };
   } catch (error) {
     console.error("❌ Google Sign-In Error:", error);
     alert("❌ Google Sign-In failed! Make sure pop-ups are allowed.");
@@ -41,7 +33,6 @@ const signInWithGoogle = async () => {
   }
 };
 
-// ✅ Function to Logout
 const logout = async () => {
   try {
     await signOut(auth);
