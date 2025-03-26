@@ -11,8 +11,6 @@ function App() {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setUser(user);
-
-        // ✅ Get Google OAuth Token from User
         const token = await user.getIdToken();
         setGoogleToken(token);
       } else {
@@ -20,14 +18,13 @@ function App() {
         setGoogleToken(null);
       }
     });
-
-    return () => unsubscribe(); // Cleanup on unmount
+    return () => unsubscribe();
   }, []);
 
   const handleLogin = async () => {
     try {
       const result = await signInWithGoogle();
-      if (result.user) {
+      if (result?.user) {
         setUser(result.user);
         const token = await result.user.getIdToken();
         setGoogleToken(token);
@@ -43,21 +40,17 @@ function App() {
       alert("You must be logged in to save a letter!");
       return;
     }
-
     try {
       const firebaseToken = await user.getIdToken();
-
-      console.log("🔹 Sending Google OAuth token:", googleToken); // 🔥 Debugging log
-
-      const response = await fetch("http://localhost:5001/save-letter", {
+      console.log("🔹 Sending Google OAuth token:", googleToken);
+      const response = await fetch("https://your-backend-url.onrender.com/save-letter", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${firebaseToken}`, // ✅ Firebase auth token
+          Authorization: `Bearer ${firebaseToken}`,
         },
-        body: JSON.stringify({ letter: content, userToken: googleToken }), // ✅ Send Google OAuth token
+        body: JSON.stringify({ letter: content, userToken: googleToken }),
       });
-
       const data = await response.json();
       if (response.ok) {
         alert("✅ Letter saved successfully!");
@@ -75,7 +68,7 @@ function App() {
       <h1>Google Docs Clone</h1>
       {user ? (
         <>
-          <button onClick={() => auth.signOut()}>Logout</button> {/* ✅ Logout Button */}
+          <button onClick={() => auth.signOut()}>Logout</button>
           <TextEditor onSave={handleSave} />
         </>
       ) : (
@@ -87,5 +80,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
