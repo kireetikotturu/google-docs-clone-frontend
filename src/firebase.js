@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
+// ✅ Your Firebase Config (replace with your own keys from Firebase console)
 const firebaseConfig = {
   apiKey: "AIzaSyCm1YB7wUZL15nB7PyrLjpqpJVVeN21-40",
   authDomain: "warrentyme1.firebaseapp.com",
@@ -25,9 +26,9 @@ const signInWithGoogle = async () => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential) throw new Error("No credentials returned from Google");
 
-    return { 
-      user: result.user, 
-      googleToken: credential.accessToken // Pass the Google OAuth token back
+    return {
+      user: result.user,
+      googleToken: credential.accessToken, // Return Google OAuth token
     };
   } catch (error) {
     console.error("❌ Google Sign-In Error:", error);
@@ -36,6 +37,7 @@ const signInWithGoogle = async () => {
   }
 };
 
+// Function to logout the user
 const logout = async () => {
   try {
     await signOut(auth);
