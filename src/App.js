@@ -72,7 +72,7 @@ function App() {
         </>
       ) : (
         <>
-          <button onClick={handleLogin}>Sign in with Google</button>
+
           <Login />
         </>
       )}
