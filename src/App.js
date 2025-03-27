@@ -3,7 +3,6 @@ import TextEditor from "./components/TextEditor";
 import { auth, signInWithGoogle } from "./firebase";
 import Login from "./Login";
 import "./App.css"; // ✅ Import CSS file
-
 function App() {
   const [user, setUser] = useState(null);
   const [firebaseToken, setFirebaseToken] = useState(null);
