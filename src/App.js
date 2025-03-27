@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import TextEditor from "./components/TextEditor";
-import { auth, signInWithGoogle } from "./firebase"; // ✅ Import Firebase Auth
-import Login from "./Login"; // ✅ Import Login Page
+import { auth } from "./firebase";
+import Login from "./Login";
+import "./App.css"; // ✅ Import CSS file
 
 function App() {
   const [user, setUser] = useState(null);
@@ -20,20 +21,6 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
-
-  const handleLogin = async () => {
-    try {
-      const result = await signInWithGoogle();
-      if (result?.user) {
-        setUser(result.user);
-        const token = await result.user.getIdToken();
-        setFirebaseToken(token);
-      }
-    } catch (error) {
-      console.error("❌ Google Sign-In Error:", error);
-      alert("❌ Google authentication failed! Please try again.");
-    }
-  };
 
   const handleSave = async (content) => {
     if (!user || !firebaseToken) {
@@ -63,18 +50,15 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Google Docs Clone</h1>
+    <div className="container">
+      <h1>Store Letters</h1>
       {user ? (
         <>
-          <button onClick={() => auth.signOut()}>Logout</button>
+          <button className="logout-btn" onClick={() => auth.signOut()}>Logout</button>
           <TextEditor onSave={handleSave} />
         </>
       ) : (
-        <>
-
-          <Login />
-        </>
+        <Login />
       )}
     </div>
   );
