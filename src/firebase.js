@@ -25,7 +25,10 @@ const signInWithGoogle = async () => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential) throw new Error("No credentials returned from Google");
 
-    return { user: result.user, googleToken: credential.accessToken };
+    return { 
+      user: result.user, 
+      googleToken: credential.accessToken // Pass the Google OAuth token back
+    };
   } catch (error) {
     console.error("❌ Google Sign-In Error:", error);
     alert("❌ Google Sign-In failed! Make sure pop-ups are allowed.");
