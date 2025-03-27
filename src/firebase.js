@@ -1,7 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithRedirect, 
+  getRedirectResult, 
+  signOut 
+} from "firebase/auth";
 
-// ✅ Your Firebase Config (replace with your own keys from Firebase console)
+// ✅ Your Firebase Config (replace with your actual credentials)
 const firebaseConfig = {
   apiKey: "AIzaSyCm1YB7wUZL15nB7PyrLjpqpJVVeN21-40",
   authDomain: "warrentyme1.firebaseapp.com",
@@ -18,26 +24,37 @@ const auth = getAuth(app);
 // ✅ Configure Google OAuth Provider
 const provider = new GoogleAuthProvider();
 provider.addScope("https://www.googleapis.com/auth/drive.file");
+provider.setCustomParameters({
+  prompt: "select_account", // Forces user to always pick an account
+});
 
-// ✅ Function to Sign In with Google
+// ✅ Function to Sign In with Google (Using Redirect)
 const signInWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, provider);
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    if (!credential) throw new Error("No credentials returned from Google");
-
-    return {
-      user: result.user,
-      googleToken: credential.accessToken, // Return Google OAuth token
-    };
+    await signInWithRedirect(auth, provider); // Use redirect instead of popup
   } catch (error) {
     console.error("❌ Google Sign-In Error:", error);
-    alert("❌ Google Sign-In failed! Make sure pop-ups are allowed.");
-    return null;
+    alert("❌ Google Sign-In failed! Please check your Firebase configuration.");
   }
 };
 
-// Function to logout the user
+// ✅ Function to Handle Redirect Result (Call this on page load)
+const handleRedirectResult = async () => {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result) {
+      console.log("✅ Google Sign-In Success:", result.user);
+      return {
+        user: result.user,
+        googleToken: result.user.accessToken,
+      };
+    }
+  } catch (error) {
+    console.error("❌ Redirect Sign-In Error:", error);
+  }
+};
+
+// ✅ Function to Logout the user
 const logout = async () => {
   try {
     await signOut(auth);
@@ -47,4 +64,4 @@ const logout = async () => {
   }
 };
 
-export { auth, signInWithGoogle, logout };
+export { auth, signInWithGoogle, handleRedirectResult, logout };
